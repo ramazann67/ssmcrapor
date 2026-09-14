@@ -1,0 +1,579 @@
+<title>Sandy Shores Rapor Merkezi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+  :root {
+    --ink: #16232f;
+    --ink-soft: #51606f;
+    --ink-faint: #7c8a97;
+    --primary: #14548c;
+    --primary-deep: #0f2d47;
+    --primary-tint: #e7f0f8;
+    --accent: #e8791e;
+    --accent-tint: #fdefdf;
+    --danger: #b31f24;
+    --danger-tint: #fbebec;
+    --success: #1f6b34;
+    --success-tint: #e9f6ee;
+    --surface: #ffffff;
+    --surface-raised: #ffffff;
+    --canvas: #eef2f6;
+    --canvas-2: #e2e9ef;
+    --border: #d7e0e8;
+    --border-soft: #e7edf2;
+    --focus: #2f79c9;
+    --shadow: 0 1px 2px rgba(15, 45, 71, .06), 0 8px 24px -12px rgba(15, 45, 71, .18);
+    /* Fixed brand rail — the sidebar is a deliberate dark-navy identity strip
+       in both themes, so these never get redefined in the dark-mode blocks. */
+    --rail-bg: #0f2d47;
+    --rail-text: #dce9f5;
+    --rail-text-dim: #9db6cc;
+    --rail-text-dimmer: #7ea0bd;
+    --rail-active-bg: #ffffff;
+    --rail-active-text: #0f2d47;
+    --rail-border: rgba(255,255,255,.08);
+    --rail-hover-bg: rgba(255,255,255,.06);
+    --font-ui: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-display: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e8eef4; --ink-soft: #a9b8c6; --ink-faint: #7d8b99;
+      --primary: #5fa3dd; --primary-deep: #dbeaf8; --primary-tint: #17293a;
+      --accent: #f0964c; --accent-tint: #2c2013;
+      --danger: #f0716a; --danger-tint: #2d1516;
+      --success: #57c495; --success-tint: #10251a;
+      --surface: #16212d; --surface-raised: #1b2836;
+      --canvas: #0b141d; --canvas-2: #0f1a24;
+      --border: #263847; --border-soft: #1e2d3a;
+      --focus: #6cb2f2;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 28px -14px rgba(0, 0, 0, .6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e8eef4; --ink-soft: #a9b8c6; --ink-faint: #7d8b99;
+    --primary: #5fa3dd; --primary-deep: #dbeaf8; --primary-tint: #17293a;
+    --accent: #f0964c; --accent-tint: #2c2013;
+    --danger: #f0716a; --danger-tint: #2d1516;
+    --success: #57c495; --success-tint: #10251a;
+    --surface: #16212d; --surface-raised: #1b2836;
+    --canvas: #0b141d; --canvas-2: #0f1a24;
+    --border: #263847; --border-soft: #1e2d3a;
+    --focus: #6cb2f2;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 28px -14px rgba(0, 0, 0, .6);
+  }
+
+  * { box-sizing: border-box; }
+  html { color-scheme: light dark; }
+  body {
+    margin: 0; background: var(--canvas); color: var(--ink);
+    font-family: var(--font-ui); font-size: 15px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+  ::selection { background: var(--primary); color: #fff; }
+  :focus-visible { outline: 2.5px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+  .skip-link {
+    position: fixed; top: -60px; left: 12px; z-index: 1000; background: var(--primary); color: #fff;
+    padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; text-decoration: none; transition: top .15s;
+  }
+  .skip-link:focus { top: 12px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; } }
+
+  .app { display: grid; grid-template-columns: 264px 1fr; min-height: 100vh; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    background: var(--rail-bg); color: var(--rail-text); padding: 20px 16px 16px;
+    display: flex; flex-direction: column; gap: 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 2px 4px 14px; border-bottom: 1px solid var(--rail-border); }
+  .brand-mark { width: 34px; height: 34px; flex: none; }
+  .brand-name { font-family: var(--font-display); font-weight: 700; font-size: 16.5px; line-height: 1.15; color: #fff; }
+  .brand-sub { font-size: 10.5px; color: var(--rail-text-dim); letter-spacing: .06em; text-transform: uppercase; margin-top: 2px; }
+
+  .nav-title { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--rail-text-dimmer); margin: 4px 4px 0; }
+  .type-nav { display: flex; flex-direction: column; gap: 3px; }
+  .type-btn {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+    background: transparent; border: none; border-left: 2.5px solid transparent; border-radius: 0 9px 9px 0; padding: 9px 10px 9px 9px;
+    color: var(--rail-text-dim); cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+  }
+  .type-btn:hover { background: var(--rail-hover-bg); color: #fff; }
+  .type-btn.is-active { background: var(--rail-active-bg); color: var(--rail-active-text); font-weight: 600; border-left-color: var(--accent); }
+  .type-icon { width: 18px; height: 18px; flex: none; }
+
+  .hist-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+  .hist-toolbar { display: flex; gap: 6px; }
+  .hist-search {
+    flex: 1; min-width: 0; background: rgba(255,255,255,.06); border: 1px solid var(--rail-border); border-radius: 8px; padding: 7px 10px;
+    color: var(--rail-text); font-size: 12.5px;
+  }
+  .hist-search::placeholder { color: var(--rail-text-dimmer); }
+  .hist-search:focus { border-color: var(--accent); }
+  .hist-sort-btn {
+    flex: none; width: 32px; background: rgba(255,255,255,.06); border: 1px solid var(--rail-border); border-radius: 8px;
+    color: var(--rail-text-dim); cursor: pointer; display: grid; place-items: center;
+  }
+  .hist-sort-btn svg { width: 14px; height: 14px; }
+  .hist-sort-btn:hover { color: #fff; border-color: var(--accent); }
+  .hist-sort-btn.is-az { color: var(--accent); }
+  .history-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .hist-item { display: flex; align-items: stretch; gap: 4px; }
+  .hist-open {
+    flex: 1; min-width: 0; text-align: left; background: rgba(255,255,255,.04); border: 1px solid var(--rail-border);
+    border-radius: 8px; padding: 7px 9px; color: var(--rail-text); cursor: pointer; display: flex; flex-direction: column; gap: 2px;
+  }
+  .hist-open:hover { background: var(--rail-hover-bg); }
+  .hist-name { font-size: 12.5px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hist-name-input { font: inherit; font-size: 12.5px; font-weight: 600; color: #16305a; background: #fff; width: 100%; border: none; border-radius: 5px; padding: 2px 5px; }
+  .hist-meta { font-size: 10.5px; color: var(--rail-text-dim); }
+  .hist-actions { display: flex; flex-direction: row; gap: 3px; flex: none; }
+  .hist-actions button {
+    width: 22px; background: transparent; border: 1px solid var(--rail-border); border-radius: 6px;
+    color: var(--rail-text-dim); cursor: pointer; display: grid; place-items: center; padding: 0;
+  }
+  .hist-actions button svg { width: 12px; height: 12px; }
+  .hist-rename:hover { color: var(--accent); border-color: var(--accent); }
+  .hist-dup:hover { color: #6cb2f2; border-color: #6cb2f2; }
+  .hist-del:hover { color: #f0716a; border-color: rgba(240,113,106,.4); }
+  .hist-empty-note { font-size: 11.5px; color: var(--rail-text-dimmer); padding: 6px 4px; }
+
+  /* ---------- Main ---------- */
+  .main { display: flex; flex-direction: column; min-width: 0; }
+  .topbar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 20px;
+    background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20;
+  }
+  .report-tag {
+    font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); background: var(--canvas-2);
+    border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px;
+  }
+  .spacer { flex: 1; }
+  .topbar-divider { width: 1px; align-self: stretch; margin: 4px 2px; background: var(--border); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--ink); padding: 8px 13px; font-weight: 600; font-size: 13.5px;
+    cursor: pointer; transition: background .15s, border-color .15s, transform .1s; min-height: 40px;
+  }
+  .btn:hover { background: var(--canvas-2); }
+  .btn:active { transform: translateY(1px); }
+  .btn svg { width: 16px; height: 16px; flex: none; }
+  .btn--primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn--primary:hover { background: var(--primary-deep); border-color: var(--primary-deep); }
+  .btn--ghost { background: transparent; border-color: transparent; }
+  .btn--ghost:hover { background: var(--canvas-2); }
+
+  .menu-wrap { position: relative; }
+  .menu {
+    position: absolute; top: calc(100% + 6px); left: 0; min-width: 260px; background: var(--surface-raised);
+    border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 6px; z-index: 30;
+    display: none; flex-direction: column; gap: 2px;
+  }
+  .menu.is-open { display: flex; }
+  .menu-item { text-align: left; background: transparent; border: none; border-radius: 8px; padding: 9px 10px; font-size: 13.5px; color: var(--ink); cursor: pointer; }
+  .menu-item:hover { background: var(--primary-tint); color: var(--primary); }
+
+  .zoom-wrap { display: flex; align-items: center; gap: 2px; background: var(--canvas-2); border: 1px solid var(--border); border-radius: 9px; padding: 3px; }
+  .zoom-btn { width: 30px; height: 30px; display: grid; place-items: center; border: none; background: transparent; border-radius: 6px; color: var(--ink-soft); cursor: pointer; }
+  .zoom-btn:hover { background: var(--surface); color: var(--primary); }
+  .zoom-btn svg { width: 15px; height: 15px; }
+  .zoom-value { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); width: 42px; text-align: center; font-variant-numeric: tabular-nums; background: none; border: none; cursor: pointer; padding: 6px 0; border-radius: 6px; }
+  .zoom-value:hover { background: var(--surface); color: var(--primary); }
+  .btn--icon { padding: 8px; min-width: 40px; justify-content: center; }
+  .btn--icon svg { width: 18px; height: 18px; }
+
+  .view-toggle { display: none; gap: 4px; background: var(--canvas-2); border: 1px solid var(--border); border-radius: 9px; padding: 3px; }
+  .view-toggle.backup-scope { display: flex; align-self: flex-start; }
+  .view-toggle button { border: none; background: transparent; padding: 6px 12px; border-radius: 7px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+  .view-toggle button.is-active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+  .workspace { flex: 1; display: grid; grid-template-columns: minmax(360px, 460px) 1fr; min-height: 0; }
+
+  /* ---------- Form panel ---------- */
+  .form-scroll { overflow-y: auto; padding: 18px 20px 60px; border-right: 1px solid var(--border); background: var(--canvas); }
+  .form-section {
+    border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 14px 16px 16px;
+    margin: 0 0 14px; display: flex; flex-direction: column; gap: 12px; transition: background .15s, border-color .15s;
+  }
+  .form-section legend {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;
+    font-weight: 700; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--primary);
+    padding: 0 4px; margin-left: -4px;
+  }
+  .form-section.is-hidden { background: var(--canvas-2); border-style: dashed; }
+  .form-section.is-hidden legend { opacity: .7; }
+  .section-move { display: flex; gap: 2px; flex: none; }
+  .section-move button { width: 18px; height: 15px; border: none; background: var(--canvas-2); border-radius: 4px; color: var(--ink-faint); cursor: pointer; display: grid; place-items: center; padding: 0; }
+  .section-move button svg { width: 10px; height: 10px; }
+  .section-move button:hover:not(:disabled) { background: var(--primary-tint); color: var(--primary); }
+  .section-move button:disabled { opacity: .3; cursor: default; }
+  .section-title-input {
+    flex: 1; min-width: 0; background: transparent; border: 1px solid transparent; border-radius: 5px;
+    font-weight: 700; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--primary);
+    padding: 3px 5px; margin: -3px 0;
+  }
+  .section-title-input:hover { border-color: var(--border); }
+  .section-title-input:focus { border-color: var(--focus); background: var(--surface); text-transform: none; letter-spacing: normal; }
+  .section-toggle {
+    flex: none; font-size: 10.5px; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--ink-faint);
+    background: var(--canvas-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; cursor: pointer;
+  }
+  .section-toggle:hover { color: var(--danger); border-color: var(--danger); }
+  .form-section.is-hidden .section-toggle { color: var(--success); border-color: var(--success); background: var(--success-tint); }
+  .section-hidden-note { font-size: 12px; color: var(--ink-faint); font-weight: 400; font-style: italic; margin: 0; }
+  .reset-layout-btn {
+    width: 100%; text-align: center; font-size: 12px; font-weight: 600; color: var(--ink-faint);
+    background: var(--canvas-2); border: 1px dashed var(--border); border-radius: 8px; padding: 8px; margin-bottom: 12px; cursor: pointer;
+  }
+  .reset-layout-btn:hover { color: var(--danger); border-color: var(--danger); }
+  .field { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
+  .field-label { font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
+  .field .req { color: var(--danger); }
+  .field input[type="text"], .field input[type="number"], .field select, .field textarea {
+    font-weight: 400; font-size: 14px; color: var(--ink); background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 9px 10px; min-height: 40px; resize: vertical;
+  }
+  .field textarea { resize: vertical; font-family: var(--font-ui); line-height: 1.45; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--focus); }
+
+  .repeater { display: flex; flex-direction: column; gap: 6px; }
+  .repeater-row { display: flex; gap: 6px; align-items: flex-start; }
+  .repeater-row input, .repeater-row textarea {
+    flex: 1; min-width: 0; font-size: 13.5px; border: 1.5px solid var(--border); border-radius: 7px;
+    padding: 7px 9px; background: var(--surface); color: var(--ink);
+  }
+  .repeater--table .repeater-row { display: grid; grid-template-columns: repeat(var(--cols), 1fr) 28px; gap: 6px; }
+  .repeater--table .repeater-head { display: grid; grid-template-columns: repeat(var(--cols), 1fr) 28px; gap: 6px; margin-bottom: 2px; }
+  .repeater--table .repeater-head span { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-faint); }
+  .row-del {
+    flex: none; width: 28px; height: 34px; border-radius: 7px; border: 1.5px solid var(--border-soft); background: var(--surface);
+    color: var(--ink-faint); cursor: pointer; font-size: 16px; line-height: 1; display: grid; place-items: center;
+  }
+  .row-del:hover { border-color: var(--danger); color: var(--danger); }
+  .row-add {
+    align-self: flex-start; margin-top: 2px; background: var(--primary-tint); color: var(--primary); border: 1px dashed var(--primary);
+    border-radius: 8px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  }
+  .row-add:hover { background: var(--primary); color: #fff; }
+
+  .form-section--custom { border-style: dashed; background: var(--canvas-2); }
+  .field-hint { font-size: 12px; font-weight: 400; color: var(--ink-faint); margin: -4px 0 2px; }
+  .custom-block { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .custom-head { display: flex; gap: 6px; align-items: center; }
+  .custom-pagebreak { display: flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500; color: var(--ink-faint); cursor: pointer; }
+  .custom-pagebreak input { accent-color: var(--primary); }
+  .custom-move { display: flex; flex-direction: column; gap: 2px; flex: none; }
+  .custom-move button { width: 20px; height: 15px; border: none; background: var(--canvas-2); border-radius: 4px; color: var(--ink-faint); cursor: pointer; display: grid; place-items: center; padding: 0; }
+  .custom-move button svg { width: 11px; height: 11px; }
+  .custom-move button:hover:not(:disabled) { background: var(--primary-tint); color: var(--primary); }
+  .custom-move button:disabled { opacity: .3; cursor: default; }
+  .custom-title { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 600; border: 1.5px solid var(--border); border-radius: 7px; padding: 8px 10px; background: var(--surface); color: var(--ink); }
+  .custom-title:focus { border-color: var(--focus); }
+  .custom-type { font-size: 12.5px; font-weight: 600; border: 1.5px solid var(--border); border-radius: 7px; padding: 8px 8px; background: var(--surface); color: var(--ink-soft); }
+  .custom-del { flex: none; width: 32px; height: 34px; border-radius: 7px; border: 1.5px solid var(--border-soft); background: var(--surface); color: var(--ink-faint); cursor: pointer; font-size: 16px; display: grid; place-items: center; }
+  .custom-del:hover { border-color: var(--danger); color: var(--danger); }
+  .custom-text { font-size: 13.5px; border: 1.5px solid var(--border); border-radius: 7px; padding: 8px 10px; background: var(--surface); color: var(--ink); resize: vertical; font-family: var(--font-ui); line-height: 1.45; }
+  .custom-box-label { font-size: 12.5px; border: 1.5px solid var(--border); border-radius: 7px; padding: 8px 10px; background: var(--surface); color: var(--ink); }
+  .custom-box-tone-row { display: flex; align-items: center; gap: 8px; }
+  .custom-box-tone-row .field-label { flex: none; }
+  .custom-box-tone { font-size: 12.5px; font-weight: 600; border: 1.5px solid var(--border); border-radius: 7px; padding: 7px 8px; background: var(--surface); color: var(--ink-soft); }
+  .custom-cols-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .custom-col-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--canvas-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 4px 3px 10px; }
+  .custom-col-input { border: none; background: transparent; font-size: 12.5px; font-weight: 600; color: var(--ink); width: 96px; padding: 3px 0; }
+  .custom-col-del { flex: none; width: 20px; height: 20px; border-radius: 999px; border: none; background: var(--border-soft); color: var(--ink-faint); cursor: pointer; font-size: 12px; line-height: 1; display: grid; place-items: center; }
+  .custom-col-del:hover { background: var(--danger); color: #fff; }
+  .custom-col-add { font-size: 12px; font-weight: 600; color: var(--primary); background: transparent; border: 1px dashed var(--primary); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+  .custom-col-add:hover { background: var(--primary-tint); }
+  #addCustomSection { width: 100%; text-align: center; }
+
+  /* ---------- Preview panel ---------- */
+  .preview-scroll { overflow: auto; background: var(--canvas-2); padding: 28px; display: flex; justify-content: center; }
+  .paper-wrap { height: max-content; }
+  .sheet {
+    width: 210mm; min-height: 297mm; background: #fff; transform: scale(.82); transform-origin: top center;
+    box-shadow: var(--shadow); position: relative;
+  }
+
+  /* ---------- Toast / modal ---------- */
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 12px); background: var(--primary-deep); color: #fff;
+    padding: 11px 18px; border-radius: 10px; font-size: 13.5px; font-weight: 600; box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 100;
+  }
+  .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(10, 18, 28, .6); display: flex; align-items: center; justify-content: center;
+    padding: 24px; z-index: 200;
+  }
+  .modal-overlay[hidden] { display: none; }
+  .modal-card { background: var(--surface); border-radius: 14px; padding: 18px; max-width: min(680px, 100%); max-height: 90vh; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow); }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .modal-head h2 { font-family: var(--font-display); font-size: 18px; margin: 0; }
+  .modal-close { background: transparent; border: none; color: var(--ink-faint); font-size: 20px; cursor: pointer; line-height: 1; padding: 4px; }
+  .modal-hint { font-size: 13px; color: var(--ink-soft); background: var(--accent-tint); border: 1px solid var(--accent); border-radius: 8px; padding: 9px 12px; }
+  .modal-body { overflow: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--canvas-2); }
+  .modal-body img { display: block; width: 100%; height: auto; }
+  .modal-status { padding: 40px; text-align: center; color: var(--ink-soft); font-size: 13.5px; }
+  .backup-text {
+    width: 100%; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.5; color: var(--ink);
+    background: var(--canvas-2); border: 1.5px solid var(--border); border-radius: 8px; padding: 10px; resize: vertical;
+  }
+  .backup-text:focus { border-color: var(--focus); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  #backupStatus { padding: 0; text-align: left; font-weight: 600; }
+  #backupStatus.is-error { color: var(--danger); }
+  #backupStatus.is-ok { color: var(--success); }
+
+  /* ================================================================ *
+   * Document styles — mirrors the hand-built Sandy Shores PDF system.
+   * ================================================================ */
+  .doc-page { position: relative; z-index: 1; padding: 14mm 15mm 15mm; font-family: "Segoe UI", Calibri, Arial, sans-serif; color: #1a2733; font-size: 9.6px; line-height: 1.3; }
+  .doc-watermark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; overflow: hidden; z-index: 0; }
+  .doc-watermark span { transform: rotate(-32deg); font-size: 100px; font-weight: 800; color: rgba(190,30,30,.08); letter-spacing: 14px; white-space: nowrap; font-family: Arial, sans-serif; }
+
+  .doc-letterhead { width: 100%; border-collapse: collapse; border-bottom: 3px solid #14548c; padding-bottom: 6px; margin-bottom: 5px; }
+  .doc-letterhead td { vertical-align: middle; padding-bottom: 6px; border: none; }
+  .doc-logo-cell { width: 60px; }
+  .doc-logo { width: 52px; height: 52px; display: block; }
+  .doc-org-name { font-size: 13.5px; font-weight: 700; color: #14548c; letter-spacing: .3px; }
+  .doc-org-sub { font-size: 9px; color: #3d7ab5; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .doc-org-addr { font-size: 8.3px; color: #6b7c8c; margin-top: 2px; }
+  .doc-confid-cell { text-align: right; white-space: nowrap; }
+  .doc-confid-tag { display: inline-block; background: #b31f24; color: #fff; font-weight: 700; font-size: 9.8px; letter-spacing: 2px; padding: 4px 10px; border-radius: 3px; }
+  .doc-confid-sub { font-size: 7.6px; color: #8a1418; margin-top: 3px; font-weight: 600; }
+
+  .doc-title { text-align: center; font-size: 14.5px; letter-spacing: .8px; color: #14304a; margin: 5px 0 2px; }
+  .doc-subtitle { text-align: center; font-size: 8.5px; color: #7a8896; margin-bottom: 6px; letter-spacing: .4px; }
+
+  .doc-meta { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 8.8px; }
+  .doc-meta td { border: 1px solid #c7d2db; padding: 3.4px 8px; color: #1a2733; }
+  .doc-meta-label { background: #eef3f8; font-weight: 600; color: #385169 !important; width: 22%; }
+
+  .doc-section { margin-bottom: 3.5px; break-inside: avoid; }
+  .doc-section h2 { font-size: 9.7px; color: #fff; background: #14548c; padding: 2.8px 10px; margin: 0 0 3px; border-radius: 2px; letter-spacing: .3px; border-left: 4px solid #e8791e; }
+
+  .doc-kv, .doc-find, .doc-data { width: 100%; border-collapse: collapse; font-size: 8.8px; }
+  .doc-kv td, .doc-find td, .doc-data td, .doc-data th { border: 1px solid #d5dee6; padding: 3.2px 8px; vertical-align: top; color: #1a2733; }
+  .doc-kv-k, .doc-find-k { background: #f5f8fb; font-weight: 600; color: #385169 !important; width: 30%; }
+  .doc-data th { background: #14548c; color: #fff !important; text-align: left; font-weight: 600; }
+  .doc-data tr:nth-child(even) td { background: #f7fafc; }
+
+  .doc-body { font-size: 9px; text-align: justify; color: #1a2733; }
+  .doc-p { margin: 0 0 6px; }
+  .doc-p:last-child { margin-bottom: 0; }
+
+  .doc-list { margin: 1px 0 2px; padding-left: 15px; font-size: 8.9px; }
+  .doc-list li { margin-bottom: 2px; }
+  .doc-list--boxed { margin: 3px 0 0; padding-left: 14px; }
+
+  .doc-box { border-radius: 5px; padding: 6px 14px; margin-top: 2px; }
+  .doc-box--info { border: 2px solid #14548c; background: #eef3f8; }
+  .doc-box--danger { border: 2px solid #b31f24; background: #fdf1f1; }
+  .doc-box--success { border: 2px solid #1f6b34; background: #eefaf1; }
+  .doc-box-label { font-size: 8.3px; font-weight: 700; letter-spacing: .4px; }
+  .doc-box--info .doc-box-label { color: #14304a; }
+  .doc-box--danger .doc-box-label { color: #8a1418; }
+  .doc-box--success .doc-box-label { color: #1a4f28; }
+  .doc-box-text { font-size: 9px; margin-top: 2px; color: #223244; }
+  .doc-box-sub { font-size: 8.4px; color: #445; margin-top: 3px; }
+  .doc-iw-text { font-size: 12.5px; font-weight: 800; color: #8a1418; margin-top: 3px; letter-spacing: .4px; }
+  .doc-verdict { font-size: 19px; font-weight: 800; letter-spacing: 1.2px; color: #1f6b34; }
+  .doc-box--danger .doc-verdict { color: #b31f24; }
+  .doc-box--info .doc-verdict { color: #14304a; }
+  .doc-legalnote { margin-top: 5px; font-size: 7.6px; color: #6b7c8c; background: #f5f8fb; border: 1px dashed #c7d2db; border-radius: 4px; padding: 5px 9px; text-align: justify; }
+
+  .doc-sig { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .doc-sig td { text-align: center; vertical-align: bottom; padding: 0 8px; }
+  .doc-signature { font-family: "Segoe Script", "Brush Script MT", cursive; font-size: 15px; color: #16305a; margin-bottom: 1px; }
+  .doc-sig-line { border-top: 1px solid #445; padding-top: 2px; font-weight: 600; color: #385169; font-size: 8.2px; }
+  .doc-sig-role { color: #7a8896; font-size: 7.2px; }
+  .doc-seal { width: 46px; height: 46px; transform: rotate(-9deg); opacity: .92; margin: 0 auto 1px; display: block; }
+  .doc-stampnote { margin-top: 8px; font-size: 7px; color: #97a4b0; text-align: center; border-top: 1px dashed #c7d2db; padding-top: 4px; }
+
+  @media print {
+    @page { size: A4; margin: 0; }
+    /* Without this, some print pipelines (notably the Windows "Microsoft
+       Print to PDF" driver, as opposed to Chrome's own PDF export) apply
+       their own ink-economy color transform and wash out anything that
+       isn't pure black/white — this forces exact color reproduction. */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+    /* visibility:hidden keeps hidden elements in normal flow, so the sidebar's
+       100vh height etc. still count toward the printed document's total height
+       and Chrome pagination adds blank trailing pages. display:none removes
+       them from flow entirely, so the page count matches .sheet's real height. */
+    .sidebar, .topbar, .form-scroll, .toast, .modal-overlay { display: none !important; }
+    .app, .main, .workspace { display: block !important; height: auto !important; min-height: 0 !important; }
+    .preview-scroll { display: block !important; padding: 0 !important; overflow: visible !important; background: none !important; }
+    .paper-wrap { height: auto !important; }
+    .sheet {
+      /* keep position:relative (from the base rule) so .doc-watermark's
+         position:absolute still anchors to the sheet, not the print page */
+      width: 210mm; min-height: 297mm; margin: 0 !important; box-shadow: none !important;
+      /* the on-screen zoom level is an inline style (higher specificity than
+         any stylesheet rule); !important is the only way to override it for print */
+      transform: none !important;
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1080px) {
+    .workspace { grid-template-columns: 1fr; }
+    .form-scroll { border-right: none; border-bottom: 1px solid var(--border); }
+    .view-toggle { display: flex; }
+    body[data-mobile-view="form"] .preview-scroll { display: none; }
+    body[data-mobile-view="preview"] .form-scroll { display: none; }
+  }
+  @media (max-width: 780px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 12px 14px; }
+    .brand { flex: 1 1 100%; }
+    .hist-wrap { flex: 1 1 100%; max-height: 160px; }
+    .type-nav { flex-direction: row; flex: 1 1 100%; flex-wrap: wrap; }
+    .type-btn { flex: 1 1 auto; justify-content: center; }
+    .preview-scroll { padding: 14px; }
+  }
+  @media (max-width: 480px) {
+    .topbar { padding: 10px 12px; }
+    .report-tag { display: none; }
+    .form-scroll, .preview-scroll { padding-left: 12px; padding-right: 12px; }
+  }
+</style>
+
+<a href="#formPanel" class="skip-link">Ana içeriğe geç</a>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 440 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sandy Shores Medical Center">
+        <circle cx="220" cy="220" r="205" fill="#ffffff" stroke="#e7ecf0" stroke-width="4"/>
+        <rect x="185" y="90" width="70" height="200" rx="8" fill="#ffffff" stroke="#e8791e" stroke-width="12"/>
+        <rect x="115" y="160" width="210" height="70" rx="8" fill="#ffffff" stroke="#c22a1f" stroke-width="12"/>
+        <path d="M 90 250 Q 150 210 210 245 T 330 240" fill="none" stroke="#0d5a96" stroke-width="16" stroke-linecap="round"/>
+        <path d="M 100 270 Q 160 235 215 262 T 320 258" fill="none" stroke="#39b3c9" stroke-width="10" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="brand-name">Sandy Shores</div>
+        <div class="brand-sub">Rapor Merkezi</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="nav-title">Rapor Türü</div>
+      <nav class="type-nav" id="typeNav" aria-label="Rapor türü seçimi"></nav>
+    </div>
+
+    <div class="hist-wrap">
+      <div class="nav-title">Geçmiş Kayıtlar</div>
+      <div class="hist-toolbar" id="historyToolbar" hidden>
+        <input type="search" id="historySearch" class="hist-search" placeholder="Kayıtlarda ara…" aria-label="Geçmiş kayıtlarda ara">
+        <button type="button" id="historySortBtn" class="hist-sort-btn" title="Sıralamayı değiştir" aria-label="Sıralamayı değiştir">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M7 4 3 8M7 4l4 4M17 20V4M17 20l4-4M17 20l-4-4"/></svg>
+        </button>
+      </div>
+      <p class="hist-empty-note" id="historyEmpty">Henüz kaydedilmiş rapor yok. Bir rapor hazırlayıp "Kaydet" ile buraya ekleyebilirsin.</p>
+      <ul class="history-list" id="historyList"></ul>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <span class="report-tag" id="reportTitleTag"></span>
+      <div class="view-toggle" id="viewToggle" role="tablist" aria-label="Görünüm">
+        <button type="button" data-view="form" class="is-active">Form</button>
+        <button type="button" data-view="preview">Önizleme</button>
+      </div>
+      <span class="spacer"></span>
+      <button type="button" class="btn btn--ghost" id="newBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Yeni Rapor
+      </button>
+      <div class="menu-wrap">
+        <button type="button" class="btn btn--ghost" id="exampleBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h9l5 5v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5Z"/><path d="M14 4v4a1 1 0 0 0 1 1h4"/></svg>
+          Örnek Yükle
+        </button>
+        <div class="menu" id="exampleMenu"></div>
+      </div>
+      <button type="button" class="btn" id="saveBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M7 3v5h9V3M7 21v-8h10v8"/></svg>
+        Kaydet
+      </button>
+      <span class="topbar-divider" aria-hidden="true"></span>
+      <button type="button" class="btn" id="pngBtn" title="Görüntüyü büyük ekranda açar; sağ tıklayıp 'Resmi farklı kaydet' ile .png olarak indirebilirsin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m3 16 4.5-4.5a2 2 0 0 1 2.8 0L15 16M14 15l1.5-1.5a2 2 0 0 1 2.8 0L21 16"/></svg>
+        PNG İndir
+      </button>
+      <button type="button" class="btn btn--primary" id="printBtn" title="Tarayıcının yazdırma penceresini açar; hedef olarak 'PDF olarak kaydet'i seçip kaydetmen yeterli">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 12l5 5 5-5"/><path d="M5 21h14"/></svg>
+        PDF Olarak Kaydet
+      </button>
+      <div class="zoom-wrap" role="group" aria-label="Önizleme yakınlaştırma">
+        <button type="button" class="zoom-btn" id="zoomOut" aria-label="Uzaklaştır">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+        </button>
+        <button type="button" class="zoom-value" id="zoomValue" title="Sığdır (tıkla)">82%</button>
+        <button type="button" class="zoom-btn" id="zoomIn" aria-label="Yakınlaştır">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <button type="button" class="btn btn--ghost btn--icon" id="backupBtn" aria-label="Yedekle / İçe Aktar" title="Yedekle / İçe Aktar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v6H4zM4 14h10v6H4zM17 14l3 3-3 3M20 17h-7"/></svg>
+      </button>
+      <button type="button" class="btn btn--ghost btn--icon" id="themeToggle" aria-label="Görünüm temasını değiştir" title="Temayı değiştir"></button>
+    </header>
+
+    <div class="workspace">
+      <div class="form-scroll">
+        <form id="formPanel" autocomplete="off"></form>
+      </div>
+      <div class="preview-scroll">
+        <div class="paper-wrap" id="paperWrap">
+          <div class="sheet" id="sheet"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="saveToast" role="status" aria-live="polite"></div>
+
+<div class="modal-overlay" id="pngModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pngModalTitle">
+    <div class="modal-head">
+      <h2 id="pngModalTitle">PNG İndir</h2>
+      <button type="button" class="modal-close" id="pngClose" aria-label="Kapat">×</button>
+    </div>
+    <p class="modal-hint">Görüntüye sağ tıklayıp <strong>"Resmi farklı kaydet"</strong>i seç (mobilde görüntüye uzun bas) — dosya adı olarak <strong id="pngFilename">rapor.png</strong> önerisini kullanabilirsin.</p>
+    <div class="modal-body">
+      <p class="modal-status" id="pngStatus">Görüntü oluşturuluyor…</p>
+      <img id="pngImg" alt="Oluşturulan rapor görüntüsü" hidden>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="backupModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="backupModalTitle">
+    <div class="modal-head">
+      <h2 id="backupModalTitle">Yedekle / İçe Aktar</h2>
+      <button type="button" class="modal-close" id="backupClose" aria-label="Kapat">×</button>
+    </div>
+    <div class="view-toggle backup-scope" id="backupScope" role="tablist" aria-label="Yedek kapsamı">
+      <button type="button" data-scope="current" class="is-active">Bu Rapor</button>
+      <button type="button" data-scope="all">Tüm Geçmiş</button>
+    </div>
+    <p class="modal-hint" id="backupHint">Aşağıdaki metin şu an açık olan raporun tüm verisidir. <strong>Panoya Kopyala</strong> ile yedekleyip başka bir cihaza/tarayıcıya taşıyabilir, ya da bu kutuya başka bir yedeği yapıştırıp <strong>Bu Veriyi Yükle</strong> diyerek geri getirebilirsin.</p>
+    <textarea id="backupText" class="backup-text" rows="10" spellcheck="false"></textarea>
+    <p class="modal-status" id="backupStatus" hidden></p>
+    <div class="modal-actions">
+      <button type="button" class="btn" id="backupCopyBtn">Panoya Kopyala</button>
+      <button type="button" class="btn btn--primary" id="backupLoadBtn">Bu Veriyi Yükle</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="report-templates.js"></script>
+<script src="examples.js"></script>
+<script src="form-schemas.js"></script>
+<script src="app.js"></script>
